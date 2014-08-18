@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aerogear DiffSync Android Demo</string>
+    <string name="project_title">Diff Sync Demo</string>
+    <string name="profession">Profession:</string>
+    <string name="send_sync">Sync</string>
+    <string name="name">Name</string>
+    <string name="wait">Wait...</string>
+    <string name="syncing">Syncing</string>
+    <string name="error_occurred">Something went wrong</string>
+    <string name="warning">Warning</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="aerogear_logo_content_description">AeroGear Logo</string>
+    <string name="serverHost">10.200.4.150</string>
+    <string name="serverPort">7777</string>
+    <string name="documentId">12345678</string>
+    <string name="seedDoc">Jedi night</string>
+</resources>
