@@ -41,8 +41,6 @@ public class DiffSyncMainActivityTest extends ActivityInstrumentationTestCase2<D
                 syncButton.performClick();
             }
         });
-        
-        
     }
 
 }
