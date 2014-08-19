@@ -27,9 +27,6 @@ import android.widget.TextView;
 import org.jboss.aerogear.diffsync.ClientDocument;
 import org.jboss.aerogear.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.diffsync.DiffSyncClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -41,7 +38,13 @@ public class DiffSyncMainActivity extends Activity implements Observer {
     private DiffSyncClient<String> syncClient;
     private String documentId;
     private String clientId;
+    private TextView name;
     private TextView profession;
+    private TextView hobby0;
+    private TextView hobby1;
+    private TextView hobby2;
+    private TextView hobby3;
+    private Info content;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -49,30 +52,17 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         setContentView(R.layout.main);
         clientId = UUID.randomUUID().toString();
         documentId = getString(R.string.documentId);
-        
-        final JSONObject document = new JSONObject();
-        try {
-            document.put("id", documentId);
-            document.put("clientId", clientId);
-            final JSONObject content = new JSONObject();
-            content.put("name", "Luke Skywalker");
-            content.put("profession", "Jedi");
-            final JSONArray hobbies = new JSONArray();
-            hobbies.put(new JSONObject().put("id", UUID.randomUUID().toString()).put("description", "Fighting the Dark Side"));
-            hobbies.put(new JSONObject().put("id", UUID.randomUUID().toString()).put("description", "going into Tosche Station to pick up some power converters"));
-            hobbies.put(new JSONObject().put("id", UUID.randomUUID().toString()).put("description", "Kissing his sister"));
-            hobbies.put(new JSONObject().put("id", UUID.randomUUID().toString()).put("description", "Bulls eyeing Womprats on his T-16"));
-            content.put("hobbies", hobbies);
-            document.put("content", content);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Log.i("onCreate", "json" + document.toString());
-
-        ((TextView) findViewById(R.id.name)).setText(getName(document));
+        name = (TextView) findViewById(R.id.name);
         profession = (TextView) findViewById(R.id.profession);
-        final String seedDoc = getString(R.string.seedDoc);
-        profession.setText(getProfession(document));
+        hobby0 = (TextView) findViewById(R.id.hobby0);
+        hobby1 = (TextView) findViewById(R.id.hobby1);
+        hobby2 = (TextView) findViewById(R.id.hobby2);
+        hobby3 = (TextView) findViewById(R.id.hobby3);
+        content = new Info("Luke Skywalker", "Jedi", "Fighting the Dark Side",
+                "going into Tosche Station to pick up some power converters",
+                "Kissing his sister",
+                "Bulls eyeing Womprats on his T-16");
+        setFields(content);
 
         Log.i("onCreate", "observer :" + this);
         syncClient = DiffSyncClient.<String>forHost(getString(R.string.serverHost))
@@ -85,9 +75,10 @@ public class DiffSyncMainActivity extends Activity implements Observer {
                 protected String doInBackground(Void... params) {
                     try {
                         syncClient.connect();
-                        final ClientDocument<String> document = clientDoc(documentId, clientId, seedDoc);
-                        Log.i("onCreate", "Seed Document:" + document);
-                        syncClient.addDocument(document);
+                        JsonUtil.toJson(content);
+                        final ClientDocument<String> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJson(content));
+                        Log.i("onCreate", "Seed Document:" + clientDocument);
+                        syncClient.addDocument(clientDocument);
                     } catch (final InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -99,9 +90,9 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                Log.i(DiffSyncMainActivity.class.getName(), "Profession:" + profession.getText());
-                final ClientDocument<String> document = clientDoc(documentId, clientId, profession.getText().toString());
-
+                
+                final Info updatedContent = gatherUpdates();
+                final ClientDocument<String> document = clientDoc(documentId, clientId, JsonUtil.toJson(updatedContent));
                 dialog = ProgressDialog.show(DiffSyncMainActivity.this, getString(R.string.wait), getString(R.string.syncing), true, false);
                 
                 new AsyncTask<ClientDocument, Void, String>() {
@@ -115,14 +106,21 @@ public class DiffSyncMainActivity extends Activity implements Observer {
 
                     @Override
                     protected void onPostExecute(final String s) {
-                        super.onPostExecute(s);
                         dialog.dismiss();
-                        //TODO should be able to update the UI in this method as it runs on the main/ui thread.
                     }
                 }.execute(document);
             }
             
         });
+    }
+    
+    private Info gatherUpdates() {
+        return new Info(content.getName().toString(), 
+                profession.getText().toString(),
+                hobby0.getText().toString(),
+                hobby1.getText().toString(),
+                hobby2.getText().toString(),
+                hobby3.getText().toString());
     }
 
     @Override
@@ -135,26 +133,19 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         }
     }
     
+    private void setFields(final Info content) {
+        name.setText(content.getName());
+        profession.setText(content.getProfession());
+        hobby0.setText(content.getHobbies().get(0));
+        hobby1.setText(content.getHobbies().get(1));
+        hobby2.setText(content.getHobbies().get(2));
+        hobby3.setText(content.getHobbies().get(3));
+    }
+    
     private static ClientDocument<String> clientDoc(final String id, final String clientId, final String content) {
         return new DefaultClientDocument<String>(id, clientId, content);
     }
     
-    private static String getName(final JSONObject json) {
-        return (String) getContent("name", json);
-    }
-    
-    private static String getProfession(final JSONObject json) {
-        return (String) getContent("profession", json);
-    }
-    
-    private static Object getContent(final String name, final JSONObject from) {
-        try {
-            return from.getJSONObject("content").get(name);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
-    } 
-
     @Override
     public void update(final Observable observable, final Object data) {
         Log.i(DiffSyncMainActivity.class.getName(), "updated:" + data);
@@ -162,7 +153,8 @@ public class DiffSyncMainActivity extends Activity implements Observer {
             @Override
             public void run() {
                 final ClientDocument<String> document = (ClientDocument<String>) data;
-                profession.setText(document.content());
+                final Info updates = JsonUtil.fromJson(document.content());
+                setFields(updates);
             }
         });
     }

@@ -1,9 +1,11 @@
 package org.aerogear.diffsync.android.demo;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import org.jboss.aerogear.diffsync.ClientDocument;
 
 public class SyncDatabase extends SQLiteOpenHelper {
     
@@ -13,6 +15,7 @@ public class SyncDatabase extends SQLiteOpenHelper {
     
     public static final String ID = BaseColumns._ID;
     public static final String DOC_ID = "docId";
+    public static final String CLIENT_ID = "clientId";
     public static final String CONTENT = "content";
 
     public SyncDatabase(Context context) {
@@ -30,6 +33,15 @@ public class SyncDatabase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("drop table if exists " + TABLE);
         onCreate(db);
+    }
+    
+    public void saveClientDocument(final ClientDocument<String> document) {
+        final SQLiteDatabase db = getWritableDatabase();
+        final ContentValues values = new ContentValues();
+        values.put(DOC_ID, document.id());
+        values.put(CLIENT_ID, document.clientId());
+        values.put(CONTENT, document.content());
+        db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
     
 }
