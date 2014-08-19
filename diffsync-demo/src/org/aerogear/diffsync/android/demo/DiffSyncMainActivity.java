@@ -90,25 +90,19 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         sync.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                
-                final Info updatedContent = gatherUpdates();
-                final ClientDocument<String> document = clientDoc(documentId, clientId, JsonUtil.toJson(updatedContent));
                 dialog = ProgressDialog.show(DiffSyncMainActivity.this, getString(R.string.wait), getString(R.string.syncing), true, false);
-                
                 new AsyncTask<ClientDocument, Void, String>() {
-
                     @Override
                     protected String doInBackground(final ClientDocument... params) {
                         Log.i("doInBackground", "Document:" + params[0]);
                         syncClient.diffAndSend(params[0]);
                         return null;
                     }
-
                     @Override
                     protected void onPostExecute(final String s) {
                         dialog.dismiss();
                     }
-                }.execute(document);
+                }.execute(clientDoc(documentId, clientId, JsonUtil.toJson(gatherUpdates())));
             }
             
         });
