@@ -2,18 +2,34 @@ package org.aerogear.diffsync.android.demo;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
 public class SyncService extends IntentService {
 
+    public static final class SyncServiceBinder extends Binder {
+        
+        private final SyncService service;
+
+        public SyncServiceBinder(SyncService service) {
+            this.service = service;
+        }
+        
+        public SyncService getService() {
+            return service;
+        }
+        
+    }
+    
     public SyncService() {
         super(SyncService.class.getName());
+        
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return new SyncServiceBinder(this);
     }
 
     @Override

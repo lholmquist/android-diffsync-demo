@@ -1,18 +1,18 @@
 /**
- * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors.
+ * JBoss, Home of Professional Open Source Copyright Red Hat, Inc., and
+ * individual contributors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.aerogear.diffsync.android.demo;
 
@@ -31,6 +31,8 @@ import org.jboss.aerogear.diffsync.DiffSyncClient;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
+import org.jboss.aerogear.android.Callback;
+import org.jboss.aerogear.diffsync.DiffSyncClientHandler;
 
 public class DiffSyncMainActivity extends Activity implements Observer {
 
@@ -68,23 +70,44 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         syncClient = DiffSyncClient.<String>forHost(getString(R.string.serverHost))
                 .port(Integer.parseInt(getString(R.string.serverPort)))
                 .observer(this)
+                .context(getApplicationContext())
+                .senderId("213383135458")
                 .build();
-        
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-                    try {
-                        syncClient.connect();
-                        JsonUtil.toJson(content);
-                        final ClientDocument<String> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJson(content));
-                        Log.i("onCreate", "Seed Document:" + clientDocument);
-                        syncClient.addDocument(clientDocument);
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
+
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+
+                try {
+                    syncClient.connect(new Callback<DiffSyncClientHandler>() {
+
+                        @Override
+                        public void onSuccess(DiffSyncClientHandler data) {
+                            new Thread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    JsonUtil.toJson(content);
+                                    final ClientDocument<String> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJson(content));
+                                    Log.i("onCreate", "Seed Document:" + clientDocument);
+                                    syncClient.addDocument(clientDocument);
+                                }
+                            }).start();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("FAILURE", e.getMessage(), e);
+                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        }
+                    });
+                } catch (InterruptedException ex) {
+                    Log.e("TAG", ex.getMessage(), ex);
                 }
-            }.execute();
+
+                return null;
+            }
+        }.execute();
 
         final Button sync = (Button) findViewById(R.id.sync);
         sync.setOnClickListener(new View.OnClickListener() {
@@ -98,18 +121,19 @@ public class DiffSyncMainActivity extends Activity implements Observer {
                         syncClient.diffAndSend(params[0]);
                         return null;
                     }
+
                     @Override
                     protected void onPostExecute(final String s) {
                         dialog.dismiss();
                     }
                 }.execute(clientDoc(documentId, clientId, JsonUtil.toJson(gatherUpdates())));
             }
-            
+
         });
     }
-    
+
     private Info gatherUpdates() {
-        return new Info(content.getName().toString(), 
+        return new Info(content.getName().toString(),
                 profession.getText().toString(),
                 hobby0.getText().toString(),
                 hobby1.getText().toString(),
@@ -120,13 +144,8 @@ public class DiffSyncMainActivity extends Activity implements Observer {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            syncClient.connect();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
-    
+
     private void setFields(final Info content) {
         name.setText(content.getName());
         profession.setText(content.getProfession());
@@ -135,11 +154,11 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         hobby2.setText(content.getHobbies().get(2));
         hobby3.setText(content.getHobbies().get(3));
     }
-    
+
     private static ClientDocument<String> clientDoc(final String id, final String clientId, final String content) {
         return new DefaultClientDocument<String>(id, clientId, content);
     }
-    
+
     @Override
     public void update(final Observable observable, final Object data) {
         Log.i(DiffSyncMainActivity.class.getName(), "updated:" + data);
