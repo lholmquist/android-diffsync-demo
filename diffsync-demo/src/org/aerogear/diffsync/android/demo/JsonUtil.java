@@ -1,5 +1,6 @@
 package org.aerogear.diffsync.android.demo;
 
+import org.aerogear.diffsync.android.demo.Info.Hobby;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,8 +16,9 @@ public final class JsonUtil {
             content.put("name", info.getName());
             content.put("profession", info.getProfession());
             final JSONArray hobbies = new JSONArray();
-            for (String hobby : info.getHobbies()) {
-                hobbies.put(new JSONObject().put("description", hobby));
+            for (Hobby hobby : info.getHobbies()) {
+                hobbies.put(new JSONObject().put("id", hobby.id())
+                        .put("description", hobby.description()));
             }
             content.put("hobbies", hobbies);
             return content.toString();
@@ -31,12 +33,20 @@ public final class JsonUtil {
             final JSONArray hobbies = jsonObject.getJSONArray("hobbies");
             return new Info(jsonObject.get("name").toString(), 
                     jsonObject.get("profession").toString(),
-                    hobbies.getJSONObject(0).get("description").toString(),
-                    hobbies.getJSONObject(1).get("description").toString(),
-                    hobbies.getJSONObject(2).get("description").toString(),
-                    hobbies.getJSONObject(3).get("description").toString());
+                    new Hobby(id(hobbies.getJSONObject(0)), description(hobbies.getJSONObject(0))),
+                    new Hobby(id(hobbies.getJSONObject(1)), description(hobbies.getJSONObject(1))),
+                    new Hobby(id(hobbies.getJSONObject(2)), description(hobbies.getJSONObject(2))),
+                    new Hobby(id(hobbies.getJSONObject(3)), description(hobbies.getJSONObject(3))));
         } catch (JSONException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    private static String id(final JSONObject json) throws JSONException {
+        return json.get("id").toString();
+    }
+
+    private static String description(final JSONObject json) throws JSONException {
+        return json.get("description").toString();
     }
 }

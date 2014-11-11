@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import org.aerogear.diffsync.android.demo.Info.Hobby;
 import org.jboss.aerogear.diffsync.ClientDocument;
 import org.jboss.aerogear.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.diffsync.DiffSyncClient;
@@ -58,10 +59,11 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         hobby1 = (TextView) findViewById(R.id.hobby1);
         hobby2 = (TextView) findViewById(R.id.hobby2);
         hobby3 = (TextView) findViewById(R.id.hobby3);
-        content = new Info("Luke Skywalker", "Jedi", "Fighting the Dark Side",
-                "going into Tosche Station to pick up some power converters",
-                "Kissing his sister",
-                "Bulls eyeing Womprats on his T-16");
+        content = new Info("Luke Skywalker", "Jedi",
+                new Hobby(UUID.randomUUID().toString(), "Fighting the Dark Side"),
+                new Hobby(UUID.randomUUID().toString(), "going into Tosche Station to pick up some power converters"),
+                new Hobby(UUID.randomUUID().toString(), "Kissing his sister"),
+                new Hobby(UUID.randomUUID().toString(), "Bulls eyeing Womprats on his T-16"));
         setFields(content);
 
         Log.i("onCreate", "observer :" + this);
@@ -111,10 +113,10 @@ public class DiffSyncMainActivity extends Activity implements Observer {
     private Info gatherUpdates() {
         return new Info(content.getName().toString(), 
                 profession.getText().toString(),
-                hobby0.getText().toString(),
-                hobby1.getText().toString(),
-                hobby2.getText().toString(),
-                hobby3.getText().toString());
+                new Hobby(content.getHobbies().get(0).id(), hobby0.getText().toString()),
+                new Hobby(content.getHobbies().get(1).id(), hobby1.getText().toString()),
+                new Hobby(content.getHobbies().get(2).id(), hobby2.getText().toString()),
+                new Hobby(content.getHobbies().get(3).id(), hobby3.getText().toString()));
     }
 
     @Override
@@ -128,12 +130,13 @@ public class DiffSyncMainActivity extends Activity implements Observer {
     }
     
     private void setFields(final Info content) {
+        this.content = content;
         name.setText(content.getName());
         profession.setText(content.getProfession());
-        hobby0.setText(content.getHobbies().get(0));
-        hobby1.setText(content.getHobbies().get(1));
-        hobby2.setText(content.getHobbies().get(2));
-        hobby3.setText(content.getHobbies().get(3));
+        hobby0.setText(content.getHobbies().get(0).description());
+        hobby1.setText(content.getHobbies().get(1).description());
+        hobby2.setText(content.getHobbies().get(2).description());
+        hobby3.setText(content.getHobbies().get(3).description());
     }
     
     private static ClientDocument<String> clientDoc(final String id, final String clientId, final String content) {
