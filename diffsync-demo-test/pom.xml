@@ -54,7 +54,7 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>android-diffsync-demo</artifactId>
             <version>${project.version}</version>
-            <type>apklib</type>
+            <type>aar</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -63,11 +63,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-client-xmpp</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -30,7 +30,7 @@
 
     <modules>
         <module>diffsync-demo</module>
-        <module>diffsync-demo-test</module>
+<!--        <module>diffsync-demo-test</module>-->
     </modules>
 
     <scm>
@@ -49,7 +49,7 @@
         <!-- Plugins versions -->
         <java.version>1.7</java.version>
         <maven.javadoc.plugin.version>2.9.1</maven.javadoc.plugin.version>
-        <maven.android.plugin.version>3.8.0</maven.android.plugin.version>
+        <maven.android.plugin.version>4.0.0-rc.3</maven.android.plugin.version>
         <builder.helper.plugin.version>1.7</builder.helper.plugin.version>
 
         <!-- Android configs -->
@@ -67,12 +67,14 @@
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>diffsync-client-core</artifactId>
                 <version>${aerogear-diffsync.version}</version>
+                <type>aar</type>
             </dependency>
           
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>diffsync-client-xmpp</artifactId>
                 <version>${aerogear-diffsync.version}</version>
+                <type>aar</type>
             </dependency>
           
             <dependency>
@@ -104,27 +106,27 @@
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>diffsync-client-xmpp</artifactId>
+            <type>aar</type>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-            <type>apklib</type>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <artifactId>diffsync-client-xmpp</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-android-core</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+            <type>aar</type>
         </dependency>
     </dependencies>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <groupId>com.simpligility.maven.plugins</groupId>
                     <artifactId>android-maven-plugin</artifactId>
                     <version>${maven.android.plugin.version}</version>
                     <extensions>true</extensions>

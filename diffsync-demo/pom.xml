@@ -63,6 +63,15 @@
                         <skip>${proguard.skip}</skip>
                     </proguard>                    
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>aar</goal>
+                            <goal>apklib</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
