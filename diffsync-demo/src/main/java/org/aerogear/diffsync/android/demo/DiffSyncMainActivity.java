@@ -36,6 +36,8 @@ import org.jboss.aerogear.diffsync.DiffSyncClientHandler;
 
 public class DiffSyncMainActivity extends Activity implements Observer {
 
+    private static final long SENDER_ID = 0l;
+    
     private ProgressDialog dialog;
     private DiffSyncClient<String> syncClient;
     private String documentId;
@@ -71,7 +73,7 @@ public class DiffSyncMainActivity extends Activity implements Observer {
                 .port(Integer.parseInt(getString(R.string.serverPort)))
                 .observer(this)
                 .context(getApplicationContext())
-                .senderId("213383135458")
+                .senderId(SENDER_ID)
                 .build();
 
         new AsyncTask<Void, Void, String>() {
