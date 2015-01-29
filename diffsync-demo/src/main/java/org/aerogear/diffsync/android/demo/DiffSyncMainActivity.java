@@ -24,22 +24,25 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import org.jboss.aerogear.diffsync.ClientDocument;
-import org.jboss.aerogear.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.diffsync.DiffSyncClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.DefaultClientDocument;
+import org.jboss.aerogear.sync.DiffSyncClient;
 
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
-import org.jboss.aerogear.android.Callback;
-import org.jboss.aerogear.diffsync.DiffSyncClientHandler;
+import org.jboss.aerogear.android.core.Callback;
+import org.jboss.aerogear.sync.DiffSyncClientHandler;
+import org.jboss.aerogear.sync.JsonPatchClientInMemoryDataStore;
+import org.jboss.aerogear.sync.JsonPatchClientSynchronizer;
+import org.jboss.aerogear.sync.client.ClientSyncEngine;
+import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 
 public class DiffSyncMainActivity extends Activity implements Observer {
 
-    private static final long SENDER_ID = 0l;
-    
     private ProgressDialog dialog;
-    private DiffSyncClient<String> syncClient;
+    private DiffSyncClient<JsonNode, JsonPatchEdit> syncClient;
     private String documentId;
     private String clientId;
     private TextView name;
@@ -68,12 +71,15 @@ public class DiffSyncMainActivity extends Activity implements Observer {
                 "Bulls eyeing Womprats on his T-16");
         setFields(content);
 
+        JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
+        JsonPatchClientInMemoryDataStore dataStore = new JsonPatchClientInMemoryDataStore();
+        ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
+
         Log.i("onCreate", "observer :" + this);
-        syncClient = DiffSyncClient.<String>forHost(getString(R.string.serverHost))
-                .port(Integer.parseInt(getString(R.string.serverPort)))
+        syncClient = DiffSyncClient.<JsonNode, JsonPatchEdit>forSenderID(getString(R.string.senderId))
+                .syncEngine(clientSyncEngine)
                 .observer(this)
                 .context(getApplicationContext())
-                .senderId(SENDER_ID)
                 .build();
 
         new AsyncTask<Void, Void, String>() {
@@ -81,16 +87,15 @@ public class DiffSyncMainActivity extends Activity implements Observer {
             protected String doInBackground(Void... params) {
 
                 try {
-                    syncClient.connect(new Callback<DiffSyncClientHandler>() {
+                    syncClient.connect(new Callback<DiffSyncClientHandler<JsonNode, JsonPatchEdit>>() {
 
                         @Override
-                        public void onSuccess(DiffSyncClientHandler data) {
+                        public void onSuccess(DiffSyncClientHandler<JsonNode, JsonPatchEdit> data) {
                             new Thread(new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    JsonUtil.toJson(content);
-                                    final ClientDocument<String> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJson(content));
+                                    final ClientDocument<JsonNode> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJsonNode(content));
                                     Log.i("onCreate", "Seed Document:" + clientDocument);
                                     syncClient.addDocument(clientDocument);
                                 }
@@ -116,9 +121,9 @@ public class DiffSyncMainActivity extends Activity implements Observer {
             @Override
             public void onClick(final View view) {
                 dialog = ProgressDialog.show(DiffSyncMainActivity.this, getString(R.string.wait), getString(R.string.syncing), true, false);
-                new AsyncTask<ClientDocument, Void, String>() {
+                new AsyncTask<ClientDocument<JsonNode>, Void, String>() {
                     @Override
-                    protected String doInBackground(final ClientDocument... params) {
+                    protected String doInBackground(final ClientDocument<JsonNode>... params) {
                         Log.i("doInBackground", "Document:" + params[0]);
                         syncClient.diffAndSend(params[0]);
                         return null;
@@ -128,14 +133,14 @@ public class DiffSyncMainActivity extends Activity implements Observer {
                     protected void onPostExecute(final String s) {
                         dialog.dismiss();
                     }
-                }.execute(clientDoc(documentId, clientId, JsonUtil.toJson(gatherUpdates())));
+                }.execute(clientDoc(documentId, clientId, JsonUtil.toJsonNode(gatherUpdates())));
             }
 
         });
     }
 
     private Info gatherUpdates() {
-        return new Info(content.getName().toString(),
+        return new Info(content.getName(),
                 profession.getText().toString(),
                 hobby0.getText().toString(),
                 hobby1.getText().toString(),
@@ -157,8 +162,8 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         hobby3.setText(content.getHobbies().get(3));
     }
 
-    private static ClientDocument<String> clientDoc(final String id, final String clientId, final String content) {
-        return new DefaultClientDocument<String>(id, clientId, content);
+    private static ClientDocument<JsonNode> clientDoc(final String id, final String clientId, final JsonNode content) {
+        return new DefaultClientDocument<JsonNode>(id, clientId, content);
     }
 
     @Override
@@ -167,8 +172,8 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final ClientDocument<String> document = (ClientDocument<String>) data;
-                final Info updates = JsonUtil.fromJson(document.content());
+                final ClientDocument<JsonNode> document = (ClientDocument<JsonNode>) data;
+                final Info updates = JsonUtil.fromJsonNode(document.content());
                 setFields(updates);
             }
         });

@@ -65,18 +65,40 @@
 
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>diffsync-client-core</artifactId>
+                <artifactId>sync-client-core</artifactId>
                 <version>${aerogear-diffsync.version}</version>
-                <type>aar</type>
             </dependency>
-          
+
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>diffsync-client-xmpp</artifactId>
+                <artifactId>sync-diffmatchpatch-client</artifactId>
+                <version>${aerogear-diffsync.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-diffmatchpatch-core</artifactId>
+                <version>${aerogear-diffsync.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-patch-client</artifactId>
+                <version>${aerogear-diffsync.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-patch-core</artifactId>
+                <version>${aerogear-diffsync.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-client-xmpp</artifactId>
                 <version>${aerogear-diffsync.version}</version>
                 <type>aar</type>
             </dependency>
-          
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -105,7 +127,7 @@
       
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-client-xmpp</artifactId>
+            <artifactId>sync-client-xmpp</artifactId>
             <type>aar</type>
         </dependency>
 <!--        <dependency>
@@ -114,12 +136,13 @@
             <version>0.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>-->
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-android-core</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-            <type>aar</type>
-        </dependency>
+      <dependency>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>aerogear-android-core</artifactId>
+        <version>2.0.0</version>
+        <scope>provided</scope>
+        <type>aar</type>
+      </dependency>
     </dependencies>
 
     <build>
