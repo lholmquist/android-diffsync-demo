@@ -30,7 +30,6 @@
 
     <modules>
         <module>diffsync-demo</module>
-<!--        <module>diffsync-demo-test</module>-->
     </modules>
 
     <scm>
@@ -71,21 +70,10 @@
 
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-diffmatchpatch-client</artifactId>
-                <version>${aerogear-diffsync.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-diffmatchpatch-core</artifactId>
-                <version>${aerogear-diffsync.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-json-patch-client</artifactId>
                 <version>${aerogear-diffsync.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-json-patch-core</artifactId>
@@ -94,9 +82,8 @@
 
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-client-xmpp</artifactId>
+                <artifactId>sync-client-netty</artifactId>
                 <version>${aerogear-diffsync.version}</version>
-                <type>aar</type>
             </dependency>
 
             <dependency>
@@ -124,18 +111,13 @@
             <version>${android.version}</version>
             <scope>provided</scope>
         </dependency>
-      
+
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-client-xmpp</artifactId>
-            <type>aar</type>
+            <artifactId>sync-client-netty</artifactId>
+            <version>${aerogear-diffsync.version}</version>
         </dependency>
-<!--        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-client-xmpp</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>-->
+
       <dependency>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>aerogear-android-core</artifactId>

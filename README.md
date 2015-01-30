@@ -13,13 +13,14 @@ The project consists of two modules:
 An Android device or emulator is required to run the demo and test. During testing we have successfully used 
 [genymotion](http://www.genymotion.com/).  
 
-The [XMPP Differential Synchronization server](https://github.com/secondsun/aerogear-sync-server/tree/xmpp-diff-sync) must
-be running.
+The 
+[JSON Patch Differential Synchronization server](https://github.com/danbev/aerogear-sync-server/tree/refactoring-spi/server/server-netty#jsonpatchdiffsyncserver) 
+must be running.
 
 
 ## Configuration
-The demo needs the SENDER_ID set for Push messaging to work.
-You can get a sender id by following [Google's Guide](https://developer.android.com/google/gcm/gs.html).  Set the SENDER_ID field in DiffSyncMainActivity.java to this value.
+Update [strings.xml](./src/res/values/strings.xml) and change the _serverHost_ to match the host that you are running
+the sync server on.
 
 ## Building and Testing
 
