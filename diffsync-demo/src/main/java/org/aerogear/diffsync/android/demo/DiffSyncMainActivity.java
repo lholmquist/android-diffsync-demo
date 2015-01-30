@@ -1,18 +1,18 @@
 /**
- * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors.
+ * JBoss, Home of Professional Open Source Copyright Red Hat, Inc., and
+ * individual contributors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.aerogear.diffsync.android.demo;
 
@@ -25,11 +25,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jboss.aerogear.android.core.Callback;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DiffSyncClient;
-import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
+import org.jboss.aerogear.sync.DiffSyncClientHandler;
 import org.jboss.aerogear.sync.JsonPatchClientSynchronizer;
+import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 
@@ -63,8 +65,7 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         hobby1 = (TextView) findViewById(R.id.hobby1);
         hobby2 = (TextView) findViewById(R.id.hobby2);
         hobby3 = (TextView) findViewById(R.id.hobby3);
-        content = new Info("Luke Skywalker", "Jedi",
-                "Fighting the Dark Side",
+        content = new Info("Luke Skywalker", "Jedi", "Fighting the Dark Side",
                 "going into Tosche Station to pick up some power converters",
                 "Kissing his sister",
                 "Bulls eyeing Womprats on his T-16");
@@ -75,26 +76,46 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
 
         Log.i("onCreate", "observer :" + this);
-        syncClient = DiffSyncClient.<JsonNode, JsonPatchEdit>forHost(getString(R.string.serverHost))
-                .port(Integer.parseInt(getString(R.string.serverPort)))
+        Log.i("onCreate", "senderId :" + getString(R.string.senderId));
+        syncClient = DiffSyncClient.<JsonNode, JsonPatchEdit>forSenderID(getString(R.string.senderId))
                 .syncEngine(clientSyncEngine)
                 .observer(this)
+                .context(getApplicationContext())
                 .build();
 
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-                    try {
-                        syncClient.connect();
-                        final ClientDocument<JsonNode> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJsonNode(content));
-                        Log.i("onCreate", "Seed Document:" + clientDocument);
-                        syncClient.addDocument(clientDocument);
-                    } catch (final InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+
+                try {
+                    syncClient.connect(new Callback<DiffSyncClientHandler<JsonNode, JsonPatchEdit>>() {
+
+                        @Override
+                        public void onSuccess(DiffSyncClientHandler<JsonNode, JsonPatchEdit> data) {
+                            new Thread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    final ClientDocument<JsonNode> clientDocument = clientDoc(documentId, clientId, JsonUtil.toJsonNode(content));
+                                    Log.i("onCreate", "Seed Document:" + clientDocument);
+                                    syncClient.addDocument(clientDocument);
+                                }
+                            }).start();
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("FAILURE", e.getMessage(), e);
+                            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        }
+                    });
+                } catch (InterruptedException ex) {
+                    Log.e("TAG", ex.getMessage(), ex);
                 }
-            }.execute();
+
+                return null;
+            }
+        }.execute();
 
         final Button sync = (Button) findViewById(R.id.sync);
         sync.setOnClickListener(new View.OnClickListener() {
@@ -108,16 +129,17 @@ public class DiffSyncMainActivity extends Activity implements Observer {
                         syncClient.diffAndSend(params[0]);
                         return null;
                     }
+
                     @Override
                     protected void onPostExecute(final String s) {
                         dialog.dismiss();
                     }
                 }.execute(clientDoc(documentId, clientId, JsonUtil.toJsonNode(gatherUpdates())));
             }
-            
+
         });
     }
-    
+
     private Info gatherUpdates() {
         return new Info(content.getName(),
                 profession.getText().toString(),
@@ -130,15 +152,9 @@ public class DiffSyncMainActivity extends Activity implements Observer {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            syncClient.connect();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
-    
+
     private void setFields(final Info content) {
-        this.content = content;
         name.setText(content.getName());
         profession.setText(content.getProfession());
         hobby0.setText(content.getHobbies().get(0));
@@ -146,11 +162,11 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         hobby2.setText(content.getHobbies().get(2));
         hobby3.setText(content.getHobbies().get(3));
     }
-    
+
     private static ClientDocument<JsonNode> clientDoc(final String id, final String clientId, final JsonNode content) {
         return new DefaultClientDocument<JsonNode>(id, clientId, content);
     }
-    
+
     @Override
     public void update(final Observable observable, final Object data) {
         Log.i(DiffSyncMainActivity.class.getName(), "updated:" + data);

@@ -82,12 +82,6 @@
 
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-client-netty</artifactId>
-                <version>${aerogear-diffsync.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-client-xmpp</artifactId>
                 <version>${aerogear-diffsync.version}</version>
                 <type>aar</type>
@@ -121,23 +115,28 @@
 
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-client-netty</artifactId>
-            <version>${aerogear-diffsync.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-client-xmpp</artifactId>
-            <type>aar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-android-core</artifactId>
             <version>2.0.0</version>
             <scope>provided</scope>
             <type>aar</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-json-patch-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-json-patch-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-client-xmpp</artifactId>
+            <type>aar</type>
+        </dependency>
+
     </dependencies>
 
     <build>

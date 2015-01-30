@@ -13,7 +13,6 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="aerogear_logo_content_description">AeroGear Logo</string>
-    <string name="serverHost">10.200.7.10</string>
-    <string name="serverPort">7777</string>
+    <string name="senderId">836374567286</string>
     <string name="documentId">12345</string>
 </resources>

@@ -13,14 +13,17 @@ The project consists of two modules:
 An Android device or emulator is required to run the demo and test. During testing we have successfully used 
 [genymotion](http://www.genymotion.com/).  
 
+You currently have to build aerogear-android-sync [client-refactoring](https://github.com/danbev/aerogear-android-sync/tree/client-refactoring)
+branch manually. 
+
 The 
 [JSON Patch Differential Synchronization server](https://github.com/danbev/aerogear-sync-server/tree/refactoring-spi/server/server-netty#jsonpatchdiffsyncserver) 
 must be running.
 
 
 ## Configuration
-Update [strings.xml](./src/res/values/strings.xml) and change the _serverHost_ to match the host that you are running
-the sync server on.
+Update [strings.xml](./src/res/values/strings.xml) and change the _senderId_ to match your project number from
+[google developer console](https://console.developers.google.com/project).
 
 ## Building and Testing
 

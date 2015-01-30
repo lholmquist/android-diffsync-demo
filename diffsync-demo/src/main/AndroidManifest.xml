@@ -20,7 +20,7 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="11" android:maxSdkVersion="19" android:targetSdkVersion="18"/>
+    <uses-sdk android:minSdkVersion="15" android:maxSdkVersion="19" android:targetSdkVersion="18"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -35,8 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".SyncService"/>
-        <receiver
+      <receiver
             android:name="org.jboss.aerogear.sync.DiffSyncClientHandler"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
