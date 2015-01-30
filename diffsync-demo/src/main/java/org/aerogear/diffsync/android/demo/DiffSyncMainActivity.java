@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DiffSyncClient;
-import org.jboss.aerogear.sync.JsonPatchClientInMemoryDataStore;
+import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.JsonPatchClientSynchronizer;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
@@ -71,7 +71,7 @@ public class DiffSyncMainActivity extends Activity implements Observer {
         setFields(content);
 
         JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
-        JsonPatchClientInMemoryDataStore dataStore = new JsonPatchClientInMemoryDataStore();
+        ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
         ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
 
         Log.i("onCreate", "observer :" + this);
